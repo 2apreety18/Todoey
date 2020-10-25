@@ -12,9 +12,15 @@ class TodoListViewController: UITableViewController {
 
     var itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogoron"]
     
+    let defaults = UserDefaults.standard //for persisting data
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //retreiving data for persisting
+        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
+            itemArray = items
+        }
     }
     
     //MARK - TableView DataSource Methods
@@ -59,6 +65,7 @@ class TodoListViewController: UITableViewController {
         
         var textField = UITextField() //for global scope
         
+        
         let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
        
         alert.addTextField { (alertTextField) in
@@ -71,6 +78,10 @@ class TodoListViewController: UITableViewController {
             
             //print(textField.text) need global variable here for completion timing problem
             self.itemArray.append(textField.text!)
+            
+            //saving data before reloading for persisting
+            self.defaults.set(self.itemArray, forKey: "TodoListArray")
+            
             self.tableView.reloadData() //reload array after appending to show new item on the view
         }
         
