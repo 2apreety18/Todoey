@@ -10,7 +10,7 @@ import UIKit
 
 class TodoListViewController: UITableViewController {
 
-    let itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogoron"]
+    var itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogoron"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,7 +34,7 @@ class TodoListViewController: UITableViewController {
     
     //MARK - TableView Delegate Methods
     
-       //selection on  the row that user wants
+       //Tick Markselection on  the row that user wants
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
        // print(indexPath.row)
        // print(itemArray[indexPath.row])
@@ -52,5 +52,36 @@ class TodoListViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
+    //MARK - Add New items
+    
+    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+        //How to create text field alert
+        
+        var textField = UITextField() //for global scope
+        
+        let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
+       
+        alert.addTextField { (alertTextField) in
+            alertTextField.placeholder = "Create New Item"
+            textField = alertTextField // as alertTextField is local scope
+        }
+        
+        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
+            //what will happen once the user clicks the Add Item Button inside the alert
+            
+            //print(textField.text) need global variable here for completion timing problem
+            self.itemArray.append(textField.text!)
+            self.tableView.reloadData() //reload array after appending to show new item on the view
+        }
+        
+        alert.addAction(action)
+        
+        present(alert, animated: true, completion: nil)
+
+    }
+    
+    
+    
+
 }
 
