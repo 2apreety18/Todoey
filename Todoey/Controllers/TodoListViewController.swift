@@ -10,15 +10,31 @@ import UIKit
 
 class TodoListViewController: UITableViewController {
 
-    var itemArray = ["Find Mike", "Buy Eggos", "Destroy Demogoron"]
+    var itemArray = [Item]() //an array of Item object
     
     let defaults = UserDefaults.standard //for persisting data
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //Linking Data Model (item.swift)
+        let newItem = Item()
+        newItem.title = "Find Mike"
+        itemArray.append(newItem)
+        
+        
+        let newItem2 = Item()
+        newItem2.title = "Buy Eggos"
+        itemArray.append(newItem2)
+        
+        
+        let newItem3 = Item()
+        newItem3.title = "Destroy Demogorgon"
+        itemArray.append(newItem3)
+        
+        
         //retreiving data for persisting
-        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
+        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
             itemArray = items
         }
     }
@@ -33,26 +49,41 @@ class TodoListViewController: UITableViewController {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
-        cell.textLabel?.text = itemArray[indexPath.row]
+        let item = itemArray[indexPath.row]
+        
+        cell.textLabel?.text = item.title
+        
+        //value              condition     valueiftrue : valueiffalse
+        cell.accessoryType = item.done ? .checkmark : .none
+        
+        //for reuseable cell related tickmark prob
+//        if item.done == true {
+//            cell.accessoryType = .checkmark
+//        } else {
+//            cell.accessoryType = .none
+//        }
         
         return cell
     }
     
     //MARK - TableView Delegate Methods
     
+    //if user select any row --- didSelectRowAt get called
        //Tick Markselection on  the row that user wants
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
        // print(indexPath.row)
        // print(itemArray[indexPath.row])
         
-        //indexPath currently selected, then add accessory
-        //tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        tableView.reloadData()
         
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .none
-        }else {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        }
+        //indexPath currently selected, then add accessory
+        
+//        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
+//            tableView.cellForRow(at: indexPath)?.accessoryType = .none
+//        }else {
+//            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
+//        }
         
         //changes the selection animation
         tableView.deselectRow(at: indexPath, animated: true)
@@ -76,8 +107,11 @@ class TodoListViewController: UITableViewController {
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             //what will happen once the user clicks the Add Item Button inside the alert
             
+            let newItem = Item()
+            newItem.title = textField.text!
+            
             //print(textField.text) need global variable here for completion timing problem
-            self.itemArray.append(textField.text!)
+            self.itemArray.append(newItem)
             
             //saving data before reloading for persisting
             self.defaults.set(self.itemArray, forKey: "TodoListArray")
