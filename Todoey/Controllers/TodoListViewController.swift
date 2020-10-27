@@ -11,32 +11,26 @@ import UIKit
 class TodoListViewController: UITableViewController {
 
     var itemArray = [Item]() //an array of Item object
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
-    let defaults = UserDefaults.standard //for persisting data
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //for persisting data
+        
+        
+        print(dataFilePath)
+        
+        
         //Linking Data Model (item.swift)
-        let newItem = Item()
-        newItem.title = "Find Mike"
-        itemArray.append(newItem)
-        
-        
-        let newItem2 = Item()
-        newItem2.title = "Buy Eggos"
-        itemArray.append(newItem2)
-        
-        
-        let newItem3 = Item()
-        newItem3.title = "Destroy Demogorgon"
-        itemArray.append(newItem3)
-        
+//        let newItem = Item()
+//        newItem.title = "Find Mike"
+//        itemArray.append(newItem)
+    
         
         //retreiving data for persisting
-        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
-            itemArray = items
-        }
+        loadItems()
     }
     
     //MARK - TableView DataSource Methods
@@ -75,7 +69,7 @@ class TodoListViewController: UITableViewController {
        // print(itemArray[indexPath.row])
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
-        tableView.reloadData()
+        saveItems()
         
         //indexPath currently selected, then add accessory
         
@@ -113,10 +107,7 @@ class TodoListViewController: UITableViewController {
             //print(textField.text) need global variable here for completion timing problem
             self.itemArray.append(newItem)
             
-            //saving data before reloading for persisting
-            self.defaults.set(self.itemArray, forKey: "TodoListArray")
-            
-            self.tableView.reloadData() //reload array after appending to show new item on the view
+            self.saveItems()
         }
         
         alert.addAction(action)
@@ -125,7 +116,32 @@ class TodoListViewController: UITableViewController {
 
     }
     
+    //MARK - Model Manupulation Methods
     
+    func saveItems(){
+        //encode arrayItem data to plist
+        let encoder = PropertyListEncoder()
+        do{
+            let data = try encoder.encode(self.itemArray)
+            try data.write(to: self.dataFilePath!)
+        }catch {
+            print("Error encoding item array,\(error)" )
+        }
+    
+        self.tableView.reloadData() //reload array after appending to show new item on the view
+    }
+    
+    func loadItems(){
+        if let data = try? Data(contentsOf: dataFilePath!){
+            let decoder = PropertyListDecoder()
+            do {
+                itemArray = try decoder.decode([Item].self, from: data)
+            } catch {
+                print("Error in decoing array,\(error)")
+            }
+        }
+        
+    }
     
 
 }
